@@ -4,61 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CustomerController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Método responsável por RETORNAR TODOS os dados da tabela.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        return Response(Customer::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Método responsável por INSERIR 1 dado na tabela.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
-        //
+        return Response(Customer::create($request->all()));
     }
 
     /**
-     * Display the specified resource.
+     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
      *
-     * @param  \App\Models\Customer  $customer
-     * @return \Illuminate\Http\Response
+     * @param integer $id
+     * @return mixed
      */
-    public function show(Customer $customer)
+    private function findById(int $id)
     {
-        //
+        return Customer::findOrFail($id);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Método responsável por RETORNAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Customer  $customer
-     * @return \Illuminate\Http\Response
+     * @param integer $customer
+     * @return Response
      */
-    public function update(Request $request, Customer $customer)
+    public function show(int $customer): Response
     {
-        //
+        return Response($this->findById($customer));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Método responsável por ATUALIZAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \App\Models\Customer  $customer
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param integer $customer
+     * @return Response
      */
-    public function destroy(Customer $customer)
+    public function update(Request $request, int $customer): Response
     {
-        //
+        $obj = $this->findById($customer);
+        $obj->update($request->all());
+        return Response($obj);
+    }
+
+    /**
+     * Método responsável por DELETAR 1 dado da tabela conforme o seu ID.
+     *
+     * @param integer $customer
+     * @return Response
+     */
+    public function destroy(int $customer): Response
+    {
+        $obj = $this->findById($customer);
+        $obj->delete();
+        return Response($obj);
     }
 }

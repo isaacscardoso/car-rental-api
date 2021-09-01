@@ -4,61 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\CarBrand;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CarBrandController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Método responsável por RETORNAR TODOS os dados da tabela.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        return Response(CarBrand::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Método responsável por INSERIR 1 dado na tabela.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
-        //
+        return Response(CarBrand::create($request->all()));
     }
 
     /**
-     * Display the specified resource.
+     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
      *
-     * @param  \App\Models\CarBrand  $carBrand
-     * @return \Illuminate\Http\Response
+     * @param integer $id
+     * @return mixed
      */
-    public function show(CarBrand $carBrand)
+    private function findById(int $id)
     {
-        //
+        return CarBrand::findOrFail($id);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Método responsável por RETORNAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\CarBrand  $carBrand
-     * @return \Illuminate\Http\Response
+     * @param integer $carBrand
+     * @return Response
      */
-    public function update(Request $request, CarBrand $carBrand)
+    public function show(int $carBrand): Response
     {
-        //
+        return Response($this->findById($carBrand));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Método responsável por ATUALIZAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \App\Models\CarBrand  $carBrand
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param integer $carBrand
+     * @return Response
      */
-    public function destroy(CarBrand $carBrand)
+    public function update(Request $request, int $carBrand): Response
     {
-        //
+        $obj = $this->findById($carBrand);
+        $obj->update($request->all());
+        return Response($obj);
+    }
+
+    /**
+     * Método responsável por DELETAR 1 dado da tabela conforme o seu ID.
+     *
+     * @param integer $carBrand
+     * @return Response
+     */
+    public function destroy(int $carBrand): Response
+    {
+        $obj = $this->findById($carBrand);
+        $obj->delete();
+        return Response($obj);
     }
 }

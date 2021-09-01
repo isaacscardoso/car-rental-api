@@ -4,61 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Rental;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class RentalController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Método responsável por RETORNAR TODOS os dados da tabela.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function index()
+    public function index(): Response
     {
-        //
+        return Response(Rental::all());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Método responsável por INSERIR 1 dado na tabela.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
-        //
+        return Response(Rental::create($request->all()));
     }
 
     /**
-     * Display the specified resource.
+     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
      *
-     * @param  \App\Models\Rental  $rental
-     * @return \Illuminate\Http\Response
+     * @param integer $id
+     * @return mixed
      */
-    public function show(Rental $rental)
+    private function findById(int $id)
     {
-        //
+        return Rental::findOrFail($id);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Método responsável por RETORNAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Rental  $rental
-     * @return \Illuminate\Http\Response
+     * @param integer $rental
+     * @return Response
      */
-    public function update(Request $request, Rental $rental)
+    public function show(int $rental): Response
     {
-        //
+        return Response($this->findById($rental));
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Método responsável por ATUALIZAR 1 dado da tabela conforme o seu ID.
      *
-     * @param  \App\Models\Rental  $rental
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param integer $rental
+     * @return Response
      */
-    public function destroy(Rental $rental)
+    public function update(Request $request, int $rental): Response
     {
-        //
+        $obj = $this->findById($rental);
+        $obj->update($request->all());
+        return Response($obj);
+    }
+
+    /**
+     * Método responsável por DELETAR 1 dado da tabela conforme o seu ID.
+     *
+     * @param integer $rental
+     * @return Response
+     */
+    public function destroy(int $rental): Response
+    {
+        $obj = $this->findById($rental);
+        $obj->delete();
+        return Response($obj);
     }
 }
