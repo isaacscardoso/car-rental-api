@@ -9,13 +9,28 @@ use Illuminate\Http\Response;
 class CarController extends Controller
 {
     /**
+     * @var Car
+     */
+    private $car;
+
+    /**
+     * Construtor da Classe
+     *
+     * @param Car $car
+     */
+    public function __construct(Car $car)
+    {
+        $this->car = $car;
+    }
+
+    /**
      * Método responsável por RETORNAR TODOS os dados da tabela.
      *
      * @return Response
      */
     public function index(): Response
     {
-        return Response(Car::all());
+        return Response($this->car::all());
     }
 
     /**
@@ -26,7 +41,7 @@ class CarController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response(Car::create($request->all()));
+        return Response($this->car->create($request->all()));
     }
 
     /**
@@ -37,7 +52,7 @@ class CarController extends Controller
      */
     private function findById(int $id)
     {
-        return Car::findOrFail($id);
+        return $this->car->findOrFail($id);
     }
 
     /**

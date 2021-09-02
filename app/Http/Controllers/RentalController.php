@@ -9,13 +9,28 @@ use Illuminate\Http\Response;
 class RentalController extends Controller
 {
     /**
+     * @var
+     */
+    private $rental;
+
+    /**
+     * Construtor da Classe
+     *
+     * @param Rental $rental
+     */
+    public function __construct(Rental $rental)
+    {
+        $this->rental = $rental;
+    }
+
+    /**
      * Método responsável por RETORNAR TODOS os dados da tabela.
      *
      * @return Response
      */
     public function index(): Response
     {
-        return Response(Rental::all());
+        return Response($this->rental::all());
     }
 
     /**
@@ -26,7 +41,7 @@ class RentalController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response(Rental::create($request->all()));
+        return Response($this->rental->create($request->all()));
     }
 
     /**
@@ -37,7 +52,7 @@ class RentalController extends Controller
      */
     private function findById(int $id)
     {
-        return Rental::findOrFail($id);
+        return $this->rental->findOrFail($id);
     }
 
     /**

@@ -9,13 +9,28 @@ use Illuminate\Http\Response;
 class CustomerController extends Controller
 {
     /**
+     * @var
+     */
+    private $customer;
+
+    /**
+     * Construtor da Classe
+     *
+     * @param Customer $customer
+     */
+    public function __construct(Customer $customer)
+    {
+        $this->customer = $customer;
+    }
+
+    /**
      * Método responsável por RETORNAR TODOS os dados da tabela.
      *
      * @return Response
      */
     public function index(): Response
     {
-        return Response(Customer::all());
+        return Response($this->customer::all());
     }
 
     /**
@@ -26,7 +41,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response(Customer::create($request->all()));
+        return Response($this->customer->create($request->all()));
     }
 
     /**
@@ -37,7 +52,7 @@ class CustomerController extends Controller
      */
     private function findById(int $id)
     {
-        return Customer::findOrFail($id);
+        return $this->customer->findOrFail($id);
     }
 
     /**
