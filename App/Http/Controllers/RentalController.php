@@ -41,7 +41,12 @@ class RentalController extends Controller
      */
     public function index(): Response
     {
-        return Response($this->rental::all());
+        $obj = $this->rental::all();
+
+        if (count($obj) <= 0)
+            return Response(['INFO' => 'Nenhum aluguel de carro foi encontrado!'], 404);
+        else
+            return Response($obj);
     }
 
     /**
@@ -68,7 +73,7 @@ class RentalController extends Controller
         if ($obj !== null)
             return Response($obj);
         else
-            return Response(['INFO' => 'O recurso pesquisado não foi encontrado!'], 404);
+            return Response(['INFO' => 'O aluguel de carro pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -85,7 +90,7 @@ class RentalController extends Controller
         if ($obj !== null)
             $obj->update($request->all());
         else
-            return Response(['INFO' => 'O recurso a ser atualizado não foi encontrado!'], 404);
+            return Response(['INFO' => 'O aluguel de carro a ser atualizado não foi encontrado!'], 404);
 
         return Response($obj);
     }
@@ -103,7 +108,7 @@ class RentalController extends Controller
         if ($obj !== null)
             $obj->delete();
         else
-            return Response(['INFO' => 'O recurso a ser deletado não foi encontado!'], 404);
+            return Response(['INFO' => 'O aluguel de carro a ser deletado não foi encontrado!'], 404);
 
         return Response($obj);
     }

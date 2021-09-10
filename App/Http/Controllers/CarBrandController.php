@@ -41,7 +41,12 @@ class CarBrandController extends Controller
      */
     public function index(): Response
     {
-        return Response($this->carBrand::all());
+        $obj = $this->carBrand::all();
+
+        if (count($obj) <= 0)
+            return Response(['INFO' => 'Nenhuma marca de carro foi encontrada!'], 404);
+        else
+            return Response($obj);
     }
 
     /**
@@ -68,7 +73,7 @@ class CarBrandController extends Controller
         if ($obj !== null)
             return Response($obj);
         else
-            return Response(['INFO' => 'O recurso pesquisado não foi encontrado!'], 404);
+            return Response(['INFO' => 'A marca de carro pesquisada não foi encontrada!'], 404);
     }
 
     /**
@@ -85,7 +90,7 @@ class CarBrandController extends Controller
         if ($obj !== null)
             $obj->update($request->all());
         else
-            return Response(['INFO' => 'O recurso a ser atualizado não foi encontrado!'], 404);
+            return Response(['INFO' => 'A marca de carro a ser atualizada não foi encontrada!'], 404);
 
         return Response($obj);
     }
@@ -103,7 +108,7 @@ class CarBrandController extends Controller
         if ($obj !== null)
             $obj->delete();
         else
-            return Response(['INFO' => 'O recurso a ser deletado não foi encontado!'], 404);
+            return Response(['INFO' => 'A marca de carro a ser deletada não foi encontrada!'], 404);
 
         return Response($obj);
     }
