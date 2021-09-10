@@ -24,6 +24,17 @@ class CustomerController extends Controller
     }
 
     /**
+     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
+     *
+     * @param integer $id
+     * @return mixed
+     */
+    private function findById(int $id)
+    {
+        return $this->customer->find($id);
+    }
+
+    /**
      * Método responsável por RETORNAR TODOS os dados da tabela.
      *
      * @return Response
@@ -41,18 +52,7 @@ class CustomerController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->customer->create($request->all()));
-    }
-
-    /**
-     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
-     *
-     * @param integer $id
-     * @return mixed
-     */
-    private function findById(int $id)
-    {
-        return $this->customer->findOrFail($id);
+        return Response($this->customer->create($request->all()), 201);
     }
 
     /**
@@ -63,7 +63,12 @@ class CustomerController extends Controller
      */
     public function show(int $customer): Response
     {
-        return Response($this->findById($customer));
+        $obj = $this->findById($customer);
+
+        if ($obj !== null)
+            return Response($obj);
+        else
+            return Response(['INFO' => 'O recurso pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -76,7 +81,12 @@ class CustomerController extends Controller
     public function update(Request $request, int $customer): Response
     {
         $obj = $this->findById($customer);
-        $obj->update($request->all());
+
+        if ($obj !== null)
+            $obj->update($request->all());
+        else
+            return Response(['INFO' => 'O recurso a ser atualizado não foi encontrado!'], 404);
+
         return Response($obj);
     }
 
@@ -89,7 +99,12 @@ class CustomerController extends Controller
     public function destroy(int $customer): Response
     {
         $obj = $this->findById($customer);
-        $obj->delete();
+
+        if ($obj !== null)
+            $obj->delete();
+        else
+            return Response(['INFO' => 'O recurso a ser deletado não foi encontado!'], 404);
+
         return Response($obj);
     }
 }

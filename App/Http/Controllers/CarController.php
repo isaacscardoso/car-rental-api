@@ -24,6 +24,17 @@ class CarController extends Controller
     }
 
     /**
+     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
+     *
+     * @param integer $id
+     * @return mixed
+     */
+    private function findById(int $id)
+    {
+        return $this->car->find($id);
+    }
+
+    /**
      * Método responsável por RETORNAR TODOS os dados da tabela.
      *
      * @return Response
@@ -41,18 +52,7 @@ class CarController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->car->create($request->all()));
-    }
-
-    /**
-     * Método intermediário — responsável por retornar 1 dado conforme o seu ID.
-     *
-     * @param integer $id
-     * @return mixed
-     */
-    private function findById(int $id)
-    {
-        return $this->car->findOrFail($id);
+        return Response($this->car->create($request->all()), 201);
     }
 
     /**
@@ -63,7 +63,12 @@ class CarController extends Controller
      */
     public function show(int $car): Response
     {
-        return Response($this->findById($car));
+        $obj = $this->findById($car);
+
+        if ($obj !== null)
+            return Response($obj);
+        else
+            return Response(['INFO' => 'O recurso pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -76,7 +81,12 @@ class CarController extends Controller
     public function update(Request $request, int $car): Response
     {
         $obj = $this->findById($car);
-        $obj->update($request->all());
+
+        if ($obj !== null)
+            $obj->update($request->all());
+        else
+            return Response(['INFO' => 'O recurso a ser atualizado não foi encontrado!'], 404);
+
         return Response($obj);
     }
 
@@ -89,7 +99,12 @@ class CarController extends Controller
     public function destroy(int $car): Response
     {
         $obj = $this->findById($car);
-        $obj->delete();
+
+        if ($obj !== null)
+            $obj->delete();
+        else
+            return Response(['INFO' => 'O recurso a ser deletado não foi encontado!'], 404);
+
         return Response($obj);
     }
 }
