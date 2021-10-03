@@ -12,4 +12,26 @@ class CarBrand extends Model
     protected $table = 'carros_marcas';
 
     protected $fillable = ['nome', 'imagem'];
+
+    /**
+     * @return string[]
+     */
+    public function rules(): array
+    {
+        return [
+            'nome' => 'required|unique:carros_marcas,nome,' . $this->id,
+            'imagem' => 'required',
+        ];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function feedback(): array
+    {
+        return [
+            'required' => 'Preencha o campo :attribute.',
+            'nome.unique' => 'O nome da marca já existe.',
+        ];
+    }
 }

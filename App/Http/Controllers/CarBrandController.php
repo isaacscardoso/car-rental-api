@@ -57,7 +57,10 @@ class CarBrandController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->carBrand->create($request->all()), 201);
+        $request->validate($this->carBrand->rules(), $this->carBrand->feedback());
+        $obj = $this->carBrand->create($request->all());
+
+        return Response($obj, 201);
     }
 
     /**
@@ -87,9 +90,20 @@ class CarBrandController extends Controller
     {
         $obj = $this->findById($carBrand);
 
-        if ($obj !== null)
+        if ($obj !== null) {
+            if ($request->method() === 'PATCH') {
+                $dynamicRules = array();
+                foreach ($obj->rules() as $input => $rule) {
+                    if (array_key_exists($input, $request->all())) {
+                        $dynamicRules[$input] = $rule;
+                    }
+                }
+                $request->validate($dynamicRules, $obj->feedback());
+            } else {
+                $request->validate($obj->rules(), $obj->feedback());
+            }
             $obj->update($request->all());
-        else
+        } else
             return Response(['INFO' => 'A marca de carro a ser atualizada não foi encontrada!'], 404);
 
         return Response($obj);

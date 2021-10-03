@@ -57,7 +57,10 @@ class CarController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->car->create($request->all()), 201);
+        $request->validate($this->car->rules(), $this->car->feedback());
+        $obj = $this->car->create($request->all());
+
+        return Response($obj, 201);
     }
 
     /**
@@ -87,9 +90,20 @@ class CarController extends Controller
     {
         $obj = $this->findById($car);
 
-        if ($obj !== null)
+        if ($obj !== null) {
+            if ($request->method() === 'PATCH') {
+                $dynamicRules = array();
+                foreach ($obj->rules() as $input => $rule) {
+                    if (array_key_exists($input, $request->all())) {
+                        $dynamicRules[$input] = $rule;
+                    }
+                }
+                $request->validate($dynamicRules, $obj->feedback());
+            } else {
+                $request->validate($obj->rules(), $obj->feedback());
+            }
             $obj->update($request->all());
-        else
+        } else
             return Response(['INFO' => 'O carro a ser atualizado não foi encontrado!'], 404);
 
         return Response($obj);

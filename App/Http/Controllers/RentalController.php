@@ -57,7 +57,10 @@ class RentalController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->rental->create($request->all()), 201);
+        $request->validate($this->rental->rules(), $this->rental->feedback());
+        $obj = $this->rental->create($request->all());
+
+        return Response($obj, 201);
     }
 
     /**
@@ -87,10 +90,21 @@ class RentalController extends Controller
     {
         $obj = $this->findById($rental);
 
-        if ($obj !== null)
+        if ($obj !== null) {
+            if ($request->method() === 'PATCH') {
+                $dynamicRules = array();
+                foreach ($obj->rules() as $input => $rule) {
+                    if (array_key_exists($input, $request->all())) {
+                        $dynamicRules[$input] = $rule;
+                    }
+                }
+                $request->validate($dynamicRules, $obj->feedback());
+            } else {
+                $request->validate($obj->rules(), $obj->feedback());
+            }
             $obj->update($request->all());
-        else
-            return Response(['INFO' => 'O aluguel de carro a ser atualizado não foi encontrado!'], 404);
+        } else
+            return Response(['INFO' => 'A locação de carro a ser atualizada não foi encontrada!'], 404);
 
         return Response($obj);
     }

@@ -57,7 +57,10 @@ class CustomerController extends Controller
      */
     public function store(Request $request): Response
     {
-        return Response($this->customer->create($request->all()), 201);
+        $request->validate($this->customer->rules(), $this->customer->feedback());
+        $obj = $this->customer->create($request->all());
+
+        return Response($obj, 201);
     }
 
     /**
@@ -87,10 +90,21 @@ class CustomerController extends Controller
     {
         $obj = $this->findById($customer);
 
-        if ($obj !== null)
+        if ($obj !== null) {
+            if ($request->method() === 'PATCH') {
+                $dynamicRules = array();
+                foreach ($obj->rules() as $input => $rule) {
+                    if (array_key_exists($input, $request->all())) {
+                        $dynamicRules[$input] = $rule;
+                    }
+                }
+                $request->validate($dynamicRules, $obj->feedback());
+            } else {
+                $request->validate($obj->rules(), $obj->feedback());
+            }
             $obj->update($request->all());
-        else
-            return Response(['INFO' => 'O cliente a ser atualizado não foi encontrado!'], 404);
+        } else
+            return Response(['INFO' => 'A conta cliente a ser atualizada não foi encontrada!'], 404);
 
         return Response($obj);
     }
