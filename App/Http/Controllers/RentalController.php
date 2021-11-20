@@ -42,11 +42,7 @@ class RentalController extends Controller
     public function index(): Response
     {
         $obj = $this->rental::all();
-
-        if (count($obj) <= 0)
-            return Response(['INFO' => 'Nenhum aluguel de carro foi encontrado!'], 404);
-        else
-            return Response($obj);
+        return count($obj) <= 0 ? Response(['INFO' => 'Nenhum aluguel de carro foi encontrado!'], 404) : Response($obj);
     }
 
     /**
@@ -59,7 +55,6 @@ class RentalController extends Controller
     {
         $request->validate($this->rental->rules(), $this->rental->feedback());
         $obj = $this->rental->create($request->all());
-
         return Response($obj, 201);
     }
 
@@ -72,11 +67,7 @@ class RentalController extends Controller
     public function show(int $rental): Response
     {
         $obj = $this->findById($rental);
-
-        if ($obj !== null)
-            return Response($obj);
-        else
-            return Response(['INFO' => 'O aluguel de carro pesquisado não foi encontrado!'], 404);
+        return isset($obj) ? Response($obj) : Response(['INFO' => 'O aluguel de carro pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -89,24 +80,8 @@ class RentalController extends Controller
     public function update(Request $request, int $rental): Response
     {
         $obj = $this->findById($rental);
-
-        if ($obj !== null) {
-            if ($request->method() === 'PATCH') {
-                $dynamicRules = array();
-                foreach ($obj->rules() as $input => $rule) {
-                    if (array_key_exists($input, $request->all())) {
-                        $dynamicRules[$input] = $rule;
-                    }
-                }
-                $request->validate($dynamicRules, $obj->feedback());
-            } else {
-                $request->validate($obj->rules(), $obj->feedback());
-            }
-            $obj->update($request->all());
-        } else
-            return Response(['INFO' => 'A locação de carro a ser atualizada não foi encontrada!'], 404);
-
-        return Response($obj);
+        $message = 'A locação de carro a ser atualizada não foi encontrada!';
+        return $this->dynamicUpdate($request, $message, $obj);
     }
 
     /**
@@ -119,11 +94,12 @@ class RentalController extends Controller
     {
         $obj = $this->findById($rental);
 
-        if ($obj !== null)
+        if ($obj !== null) {
             $obj->delete();
-        else
+            return Response($obj);
+        } else {
             return Response(['INFO' => 'O aluguel de carro a ser deletado não foi encontrado!'], 404);
-
-        return Response($obj);
+        }
     }
+
 }

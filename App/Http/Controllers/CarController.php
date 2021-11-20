@@ -42,11 +42,7 @@ class CarController extends Controller
     public function index(): Response
     {
         $obj = $this->car::all();
-
-        if (count($obj) <= 0)
-            return Response(['INFO' => 'Nenhum carro foi encontrado!'], 404);
-        else
-            return Response($obj);
+        return count($obj) <= 0 ? Response(['INFO' => 'Nenhum carro foi encontrado!'], 404) : Response($obj);
     }
 
     /**
@@ -59,7 +55,6 @@ class CarController extends Controller
     {
         $request->validate($this->car->rules(), $this->car->feedback());
         $obj = $this->car->create($request->all());
-
         return Response($obj, 201);
     }
 
@@ -72,11 +67,7 @@ class CarController extends Controller
     public function show(int $car): Response
     {
         $obj = $this->findById($car);
-
-        if ($obj !== null)
-            return Response($obj);
-        else
-            return Response(['INFO' => 'O carro pesquisado não foi encontrado!'], 404);
+        return (isset($obj)) ? Response($obj) : Response(['INFO' => 'O carro pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -89,24 +80,8 @@ class CarController extends Controller
     public function update(Request $request, int $car): Response
     {
         $obj = $this->findById($car);
-
-        if ($obj !== null) {
-            if ($request->method() === 'PATCH') {
-                $dynamicRules = array();
-                foreach ($obj->rules() as $input => $rule) {
-                    if (array_key_exists($input, $request->all())) {
-                        $dynamicRules[$input] = $rule;
-                    }
-                }
-                $request->validate($dynamicRules, $obj->feedback());
-            } else {
-                $request->validate($obj->rules(), $obj->feedback());
-            }
-            $obj->update($request->all());
-        } else
-            return Response(['INFO' => 'O carro a ser atualizado não foi encontrado!'], 404);
-
-        return Response($obj);
+        $message = 'O carro a ser atualizado não foi encontrado!';
+        return $this->dynamicUpdate($request, $message, $obj);
     }
 
     /**
@@ -118,12 +93,11 @@ class CarController extends Controller
     public function destroy(int $car): Response
     {
         $obj = $this->findById($car);
-
-        if ($obj !== null)
+        if ($obj !== null) {
             $obj->delete();
-        else
+            return Response($obj);
+        } else {
             return Response(['INFO' => 'O carro a ser deletado não foi encontrado!'], 404);
-
-        return Response($obj);
+        }
     }
 }

@@ -42,11 +42,7 @@ class CarBrandController extends Controller
     public function index(): Response
     {
         $obj = $this->carBrand::all();
-
-        if (count($obj) <= 0)
-            return Response(['INFO' => 'Nenhuma marca de carro foi encontrada!'], 404);
-        else
-            return Response($obj);
+        return count($obj) <= 0 ? Response(['INFO' => 'Nenhuma marca de carro foi encontrada'], 404) : Response($obj);
     }
 
     /**
@@ -59,7 +55,6 @@ class CarBrandController extends Controller
     {
         $request->validate($this->carBrand->rules(), $this->carBrand->feedback());
         $obj = $this->carBrand->create($request->all());
-
         return Response($obj, 201);
     }
 
@@ -72,11 +67,7 @@ class CarBrandController extends Controller
     public function show(int $carBrand): Response
     {
         $obj = $this->findById($carBrand);
-
-        if ($obj !== null)
-            return Response($obj);
-        else
-            return Response(['INFO' => 'A marca de carro pesquisada não foi encontrada!'], 404);
+        return (isset($obj)) ? Response($obj) : Response(['INFO' => 'A marca de carro pesquisada não foi encontrada!'], 404);
     }
 
     /**
@@ -89,24 +80,8 @@ class CarBrandController extends Controller
     public function update(Request $request, int $carBrand): Response
     {
         $obj = $this->findById($carBrand);
-
-        if ($obj !== null) {
-            if ($request->method() === 'PATCH') {
-                $dynamicRules = array();
-                foreach ($obj->rules() as $input => $rule) {
-                    if (array_key_exists($input, $request->all())) {
-                        $dynamicRules[$input] = $rule;
-                    }
-                }
-                $request->validate($dynamicRules, $obj->feedback());
-            } else {
-                $request->validate($obj->rules(), $obj->feedback());
-            }
-            $obj->update($request->all());
-        } else
-            return Response(['INFO' => 'A marca de carro a ser atualizada não foi encontrada!'], 404);
-
-        return Response($obj);
+        $message = 'A marca de carro a ser atualizada não foi encontrada!';
+        return $this->dynamicUpdate($request, $message, $obj);
     }
 
     /**
@@ -118,12 +93,12 @@ class CarBrandController extends Controller
     public function destroy(int $carBrand): Response
     {
         $obj = $this->findById($carBrand);
-
-        if ($obj !== null)
+        if (isset($obj)) {
             $obj->delete();
-        else
+            return Response($obj);
+        } else {
             return Response(['INFO' => 'A marca de carro a ser deletada não foi encontrada!'], 404);
-
-        return Response($obj);
+        }
     }
+
 }

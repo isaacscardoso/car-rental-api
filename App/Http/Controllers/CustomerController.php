@@ -42,11 +42,7 @@ class CustomerController extends Controller
     public function index(): Response
     {
         $obj = $this->customer::all();
-
-        if (count($obj) <= 0)
-            return Response(['INFO' => 'Nenhum cliente foi encontrado!'], 404);
-        else
-            return Response($obj);
+        return count($obj) <= 0 ? Response(['INFO' => 'Nenhum cliente foi encontrado!'], 404) : Response($obj);
     }
 
     /**
@@ -59,7 +55,6 @@ class CustomerController extends Controller
     {
         $request->validate($this->customer->rules(), $this->customer->feedback());
         $obj = $this->customer->create($request->all());
-
         return Response($obj, 201);
     }
 
@@ -72,11 +67,7 @@ class CustomerController extends Controller
     public function show(int $customer): Response
     {
         $obj = $this->findById($customer);
-
-        if ($obj !== null)
-            return Response($obj);
-        else
-            return Response(['INFO' => 'O cliente pesquisado não foi encontrado!'], 404);
+        return isset($obj) ? Response($obj) : Response(['INFO' => 'O cliente pesquisado não foi encontrado!'], 404);
     }
 
     /**
@@ -89,24 +80,8 @@ class CustomerController extends Controller
     public function update(Request $request, int $customer): Response
     {
         $obj = $this->findById($customer);
-
-        if ($obj !== null) {
-            if ($request->method() === 'PATCH') {
-                $dynamicRules = array();
-                foreach ($obj->rules() as $input => $rule) {
-                    if (array_key_exists($input, $request->all())) {
-                        $dynamicRules[$input] = $rule;
-                    }
-                }
-                $request->validate($dynamicRules, $obj->feedback());
-            } else {
-                $request->validate($obj->rules(), $obj->feedback());
-            }
-            $obj->update($request->all());
-        } else
-            return Response(['INFO' => 'A conta cliente a ser atualizada não foi encontrada!'], 404);
-
-        return Response($obj);
+        $message = 'A conta cliente a ser atualizada não foi encontrada!';
+        return $this->dynamicUpdate($request, $message, $obj);
     }
 
     /**
@@ -118,12 +93,12 @@ class CustomerController extends Controller
     public function destroy(int $customer): Response
     {
         $obj = $this->findById($customer);
-
-        if ($obj !== null)
+        if ($obj !== null) {
             $obj->delete();
-        else
+            return Response($obj);
+        } else {
             return Response(['INFO' => 'O cliente a ser deletado não foi encontrado!'], 404);
-
-        return Response($obj);
+        }
     }
+
 }
