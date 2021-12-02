@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\CarBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class CarBrandController extends Controller
 {
     /**
      * @var CarBrand
      */
-    private $carBrand;
+    private CarBrand $carBrand;
 
     /**
      * Construtor da Classe
@@ -41,8 +42,19 @@ class CarBrandController extends Controller
      */
     public function index(): Response
     {
-        $obj = $this->carBrand::all();
+        // $obj = $this->carBrand::all();
+        $obj = $this->carBrand::with('carModels')->get();
         return count($obj) <= 0 ? Response(['INFO' => 'Nenhuma marca de carro foi encontrada'], 404) : Response($obj);
+    }
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function catchImage(Request $request): string
+    {
+        $image = $request->file('imagem');
+        return $image->store('images/marcas', 'public');
     }
 
     /**
@@ -54,7 +66,11 @@ class CarBrandController extends Controller
     public function store(Request $request): Response
     {
         $request->validate($this->carBrand->rules(), $this->carBrand->feedback());
-        $obj = $this->carBrand->create($request->all());
+        $obj = $this->carBrand->create([
+            'nome'   => $request->input('nome'),
+            'imagem' => $this->catchImage($request)
+        ]);
+
         return Response($obj, 201);
     }
 
@@ -66,7 +82,8 @@ class CarBrandController extends Controller
      */
     public function show(int $carBrand): Response
     {
-        $obj = $this->findById($carBrand);
+        // $obj = $this->findById($carBrand);
+        $obj = $this->carBrand->with('carModels')->find($carBrand);
         return (isset($obj)) ? Response($obj) : Response(['INFO' => 'A marca de carro pesquisada não foi encontrada!'], 404);
     }
 
@@ -81,7 +98,38 @@ class CarBrandController extends Controller
     {
         $obj = $this->findById($carBrand);
         $message = 'A marca de carro a ser atualizada não foi encontrada!';
-        return $this->dynamicUpdate($request, $message, $obj);
+        $comparisonMethod = 'PATCH';
+
+        if (isset($obj)) {
+            if ($request->method() === $comparisonMethod) {
+                $dynamicRules = array();
+                // Percorrendo todas as regras definidas no Model
+                foreach ($obj->rules() as $input => $rule) {
+                    // Coletar apenas as regras aplicáveis aos parâmetros parciais da requisição
+                    if (array_key_exists($input, $request->all())) {
+                        $dynamicRules[$input] = $rule;
+                    }
+                }
+                $request->validate($dynamicRules, $obj->feedback());
+            } else {
+                $request->validate($obj->rules(), $obj->feedback());
+            }
+            if ($request->file('imagem')) {
+                // Deleta a imagem antiga
+                Storage::disk('public')->delete($obj->imagem);
+                $obj->update($request->all());
+                $obj->update([
+                    'imagem' => $this->catchImage($request)
+                ]);
+            } else {
+                $obj->update([
+                    'nome' => $request->input('nome')
+                ]);
+            }
+            return Response($obj);
+        } else {
+            return Response(['INFO' => $message], 404);
+        }
     }
 
     /**
@@ -94,6 +142,8 @@ class CarBrandController extends Controller
     {
         $obj = $this->findById($carBrand);
         if (isset($obj)) {
+            // Deleta a imagem do diretório
+            Storage::disk('public')->delete($obj->imagem);
             $obj->delete();
             return Response($obj);
         } else {

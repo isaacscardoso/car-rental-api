@@ -11,7 +11,7 @@ class CarController extends Controller
     /**
      * @var Car
      */
-    private $car;
+    private Car $car;
 
     /**
      * Construtor da Classe
@@ -93,7 +93,7 @@ class CarController extends Controller
     public function destroy(int $car): Response
     {
         $obj = $this->findById($car);
-        if ($obj !== null) {
+        if (isset($obj)) {
             $obj->delete();
             return Response($obj);
         } else {

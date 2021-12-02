@@ -28,14 +28,14 @@ class Rental extends Model
     public function rules(): array
     {
         return [
-            'client_id' => 'required',
-            'carro_id' => 'required',
-            'data_inicio_periodo' => 'required',
-            'data_final_previsto_periodo' => 'required',
+            'client_id'                    => 'exists:clientes,id',
+            'carro_id'                     => 'exists:carros,id',
+            'data_inicio_periodo'          => 'required',
+            'data_final_previsto_periodo'  => 'required',
             'data_final_realizado_periodo' => 'required',
-            'valor_diaria' => 'required',
-            'km_inicial' => 'required',
-            'km_final' => 'required'
+            'valor_diaria'                 => 'required',
+            'km_inicial'                   => 'required',
+            'km_final'                     => 'required'
         ];
     }
 

@@ -9,9 +9,9 @@ use Illuminate\Http\Response;
 class RentalController extends Controller
 {
     /**
-     * @var
+     * @var Rental
      */
-    private $rental;
+    private Rental $rental;
 
     /**
      * Construtor da Classe
@@ -93,8 +93,7 @@ class RentalController extends Controller
     public function destroy(int $rental): Response
     {
         $obj = $this->findById($rental);
-
-        if ($obj !== null) {
+        if (isset($obj)) {
             $obj->delete();
             return Response($obj);
         } else {

@@ -19,10 +19,10 @@ class Car extends Model
     public function rules(): array
     {
         return [
-            'modelo_id' => 'required:carros' . $this->id,
-            'placa' => 'required|unique:carros,placa' . $this->id,
+            'modelo_id'  => 'exists:carros_modelos,id',
+            'placa'      => 'required|unique:carros,placa,' . $this->id,
             'disponivel' => 'required',
-            'km' => 'required'
+            'km'         => 'required'
         ];
     }
 
@@ -32,8 +32,9 @@ class Car extends Model
     public function feedback(): array
     {
         return [
-            'required' => 'Preencha o campo :attribute.',
-            'placa.unique' => 'Já existe um registro para esta placa.'
+            'required'     => 'Preencha o campo :attribute.',
+            'placa.unique' => 'Já existe um registro para esta placa.',
+            'exists'       => "O ':attribute' não foi encontrado."
         ];
     }
 }

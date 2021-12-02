@@ -19,7 +19,7 @@ class Customer extends Model
     public function rules(): array
     {
         return [
-            'nome' => 'required'
+            'nome' => 'required|unique:clientes,nome,' . $this->id . '|min:3'
         ];
     }
 
