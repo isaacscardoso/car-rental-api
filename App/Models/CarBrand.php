@@ -20,7 +20,7 @@ class CarBrand extends Model
     public function rules(): array
     {
         return [
-            'nome' => 'required|unique:carros_marcas,nome,' . $this->id . '|min:3',
+            'nome'   => 'required|unique:carros_marcas,nome,' . $this->id . '|min:3',
             'imagem' => 'required|file|mimes:png,jpg,jpeg,svg',
         ];
     }
@@ -31,8 +31,8 @@ class CarBrand extends Model
     public function feedback(): array
     {
         return [
-            'required' => 'Preencha o campo :attribute.',
-            'nome.unique' => 'O nome da marca já existe.',
+            'required'     => 'Preencha o campo :attribute.',
+            'nome.unique'  => 'O nome da marca já existe.',
             'imagem.mimes' => 'Os formatos aceitos para imagens são: PNG, JPG, JPEG, SVG'
         ];
     }

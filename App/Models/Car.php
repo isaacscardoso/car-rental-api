@@ -21,7 +21,7 @@ class Car extends Model
         return [
             'modelo_id'  => 'exists:carros_modelos,id',
             'placa'      => 'required|unique:carros,placa,' . $this->id,
-            'disponivel' => 'required',
+            'disponivel' => 'required|boolean',
             'km'         => 'required'
         ];
     }

@@ -67,7 +67,7 @@ class CarBrandController extends Controller
     {
         $request->validate($this->carBrand->rules(), $this->carBrand->feedback());
         $obj = $this->carBrand->create([
-            'nome'   => $request->input('nome'),
+            'nome' => $request->input('nome'),
             'imagem' => $this->catchImage($request)
         ]);
 
@@ -98,38 +98,7 @@ class CarBrandController extends Controller
     {
         $obj = $this->findById($carBrand);
         $message = 'A marca de carro a ser atualizada não foi encontrada!';
-        $comparisonMethod = 'PATCH';
-
-        if (isset($obj)) {
-            if ($request->method() === $comparisonMethod) {
-                $dynamicRules = array();
-                // Percorrendo todas as regras definidas no Model
-                foreach ($obj->rules() as $input => $rule) {
-                    // Coletar apenas as regras aplicáveis aos parâmetros parciais da requisição
-                    if (array_key_exists($input, $request->all())) {
-                        $dynamicRules[$input] = $rule;
-                    }
-                }
-                $request->validate($dynamicRules, $obj->feedback());
-            } else {
-                $request->validate($obj->rules(), $obj->feedback());
-            }
-            if ($request->file('imagem')) {
-                // Deleta a imagem antiga
-                Storage::disk('public')->delete($obj->imagem);
-                $obj->update($request->all());
-                $obj->update([
-                    'imagem' => $this->catchImage($request)
-                ]);
-            } else {
-                $obj->update([
-                    'nome' => $request->input('nome')
-                ]);
-            }
-            return Response($obj);
-        } else {
-            return Response(['INFO' => $message], 404);
-        }
+        return $this->dynamicUpdate($request, $message, $obj);
     }
 
     /**

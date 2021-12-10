@@ -8,10 +8,21 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Storage;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    public function catchImage(Request $request): string
+    {
+        $image = $request->file('imagem');
+        return $image->store('images/marcas', 'public');
+    }
 
     /**
      * Método responsável por lidar com atualização dinâmica do PATCH
@@ -38,7 +49,15 @@ class Controller extends BaseController
             } else {
                 $request->validate($obj->rules(), $obj->feedback());
             }
-            $obj->update($request->all());
+            if ($request->file('imagem')) {
+                // Deleta a imagem antiga do STORAGE
+                Storage::disk('public')->delete($obj->imagem);
+                $obj->fill($request->all());
+                $obj->imagem = $this->catchImage($request);
+            } else {
+                $obj->fill($request->all());
+            }
+            $obj->save();
             return Response($obj);
         } else {
             return Response(['INFO' => $message], 404);

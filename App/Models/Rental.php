@@ -30,9 +30,9 @@ class Rental extends Model
         return [
             'client_id'                    => 'exists:clientes,id',
             'carro_id'                     => 'exists:carros,id',
-            'data_inicio_periodo'          => 'required',
-            'data_final_previsto_periodo'  => 'required',
-            'data_final_realizado_periodo' => 'required',
+            'data_inicio_periodo'          => 'required|date',
+            'data_final_previsto_periodo'  => 'required|date|after:data_inicio_periodo',
+            'data_final_realizado_periodo' => 'required|date|after:data_inicio_periodo',
             'valor_diaria'                 => 'required',
             'km_inicial'                   => 'required',
             'km_final'                     => 'required'
